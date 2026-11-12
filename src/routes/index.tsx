@@ -31,6 +31,7 @@ import serviceBuyingImage from "@/assets/service-buying.webp";
 import serviceSellingImage from "@/assets/service-selling.webp";
 import serviceInvestmentImage from "@/assets/service-investment.webp";
 import serviceConsultationImage from "@/assets/service-consultation.webp";
+import { ManagedMediaImage } from "@/components/site/ManagedMedia";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -93,7 +94,8 @@ function HomePage() {
 
   return (
     <main>
-      <section className="hero" id="home" style={{ backgroundImage: `url(${heroImage})` }}>
+      <section className="hero" id="home">
+        <ManagedMediaImage page="home" section="hero" fallback={heroImage} alt="" aria-hidden="true" className="managed-hero-media" />
         <div className="hero-shade" />
         <div className="hero-content">
           <div className="eyebrow"><span /> REAL ESTATE, THOUGHTFULLY GUIDED</div>
@@ -117,7 +119,7 @@ function HomePage() {
 
       <section className="about-section section-wrap" id="about">
         <div className="about-image-wrap">
-          <img src={towerImage} alt="A contemporary residence framed by greenery in Mumbai" width={1200} height={912} loading="lazy" />
+          <ManagedMediaImage page="home" section="about" fallback={towerImage} alt="A contemporary residence framed by greenery in Mumbai" width={1200} height={912} loading="lazy" />
           <div className="image-note"><span className="note-mark">S.</span><span>Rooted in the<br /><strong>neighbourhood.</strong></span></div>
         </div>
         <div className="about-copy">
@@ -145,7 +147,7 @@ function HomePage() {
           </div>
           <div className="gallery-grid">
             {gallery.map((item, index) => <article className={`gallery-item ${item.className}`} key={item.title}>
-              <img src={item.image} alt={item.title} width={1200} height={912} loading="lazy" />
+              <ManagedMediaImage page="home" section={`gallery-${index + 1}`} fallback={item.image} alt={item.title} width={1200} height={912} loading="lazy" />
               <div className="gallery-overlay"><span>0{index + 1} / {item.type}</span><h3>{item.title}</h3></div>
             </article>)}
           </div>
@@ -161,7 +163,7 @@ function HomePage() {
         </div>
         <div className="services-grid">
           {services.map(({ icon: Icon, image, title, text }, index) => <article className="service-item" key={title}>
-            <img className="service-row-image" src={image} alt={`${title} service`} width={1200} height={800} loading="lazy" />
+            <ManagedMediaImage page="home" section={`service-${index + 1}`} className="service-row-image" fallback={image} alt={`${title} service`} width={1200} height={800} loading="lazy" />
             <div className="service-top"><span className="service-icon"><Icon /></span><span className="service-index">0{index + 1}</span></div>
             <h3>{title}</h3><p>{text}</p>
             <div className="service-card-actions"><button className="service-enquiry" type="button" onClick={() => openEnquiryForm(title)} aria-label={`Enquire about ${title}`}>Enquire <ArrowRight /></button><a className="service-call-now" href="tel:8652869869" aria-label={`Call now about ${title}`}><Phone /> Call now</a></div>
@@ -178,7 +180,7 @@ function HomePage() {
           </div>
           <div className="featured-services-grid">
             {featuredServices.map(({ icon: Icon, image, title, href, summary, benefits }, index) => <article className="featured-service-card" key={title}>
-              <img className="featured-service-image" src={image} alt={`${title} property service`} width={1200} height={800} loading="lazy" />
+              <ManagedMediaImage page="home" section={`featured-${index + 1}`} className="featured-service-image" fallback={image} alt={`${title} property service`} width={1200} height={800} loading="lazy" />
               <div className="service-top"><span className="service-icon"><Icon /></span><span className="service-index">0{index + 1}</span></div>
               <h3>{title}</h3><p>{summary}</p>
               <ul>{benefits.map((benefit) => <li key={benefit}><Check />{benefit}</li>)}</ul>

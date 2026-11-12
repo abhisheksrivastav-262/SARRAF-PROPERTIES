@@ -1,0 +1,1 @@
+import{s as e}from"./link-S7LRuTfm.js";import{t}from"./ContentPage-i6DkjMmb.js";var n=e(),r=()=>(0,n.jsx)(t,{page:`contact`});export{r as component};

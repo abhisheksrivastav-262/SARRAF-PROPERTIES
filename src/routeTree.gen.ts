@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BuyPropertyRouteImport } from './routes/buy-property'
 import { Route as CommercialPropertiesRouteImport } from './routes/commercial-properties'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -19,6 +20,7 @@ import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as ResidentialPropertiesRouteImport } from './routes/residential-properties'
 import { Route as SellPropertyRouteImport } from './routes/sell-property'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuyPropertyRoute = BuyPropertyRouteImport.update({
@@ -70,10 +77,16 @@ const ServicesRoute = ServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/buy-property': typeof BuyPropertyRoute
   '/commercial-properties': typeof CommercialPropertiesRoute
   '/contact': typeof ContactRoute
@@ -82,10 +95,12 @@ export interface FileRoutesByFullPath {
   '/residential-properties': typeof ResidentialPropertiesRoute
   '/sell-property': typeof SellPropertyRoute
   '/services': typeof ServicesRoute
+  '/admin/login': typeof AdminLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/buy-property': typeof BuyPropertyRoute
   '/commercial-properties': typeof CommercialPropertiesRoute
   '/contact': typeof ContactRoute
@@ -94,11 +109,13 @@ export interface FileRoutesByTo {
   '/residential-properties': typeof ResidentialPropertiesRoute
   '/sell-property': typeof SellPropertyRoute
   '/services': typeof ServicesRoute
+  '/admin/login': typeof AdminLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/buy-property': typeof BuyPropertyRoute
   '/commercial-properties': typeof CommercialPropertiesRoute
   '/contact': typeof ContactRoute
@@ -107,12 +124,14 @@ export interface FileRoutesById {
   '/residential-properties': typeof ResidentialPropertiesRoute
   '/sell-property': typeof SellPropertyRoute
   '/services': typeof ServicesRoute
+  '/admin/login': typeof AdminLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/buy-property'
     | '/commercial-properties'
     | '/contact'
@@ -121,10 +140,12 @@ export interface FileRouteTypes {
     | '/residential-properties'
     | '/sell-property'
     | '/services'
+    | '/admin/login'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/admin'
     | '/buy-property'
     | '/commercial-properties'
     | '/contact'
@@ -133,10 +154,12 @@ export interface FileRouteTypes {
     | '/residential-properties'
     | '/sell-property'
     | '/services'
+    | '/admin/login'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/buy-property'
     | '/commercial-properties'
     | '/contact'
@@ -145,11 +168,13 @@ export interface FileRouteTypes {
     | '/residential-properties'
     | '/sell-property'
     | '/services'
+    | '/admin/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BuyPropertyRoute: typeof BuyPropertyRoute
   CommercialPropertiesRoute: typeof CommercialPropertiesRoute
   ContactRoute: typeof ContactRoute
@@ -174,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/buy-property': {
@@ -232,12 +264,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminLoginRoute: typeof AdminLoginRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminLoginRoute: AdminLoginRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRouteWithChildren,
   BuyPropertyRoute: BuyPropertyRoute,
   CommercialPropertiesRoute: CommercialPropertiesRoute,
   ContactRoute: ContactRoute,

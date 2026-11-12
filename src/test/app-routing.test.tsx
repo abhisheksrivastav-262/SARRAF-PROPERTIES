@@ -28,4 +28,12 @@ describe("App routing", () => {
       expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
     }
   });
+
+  it("matches the protected admin dashboard and private login routes", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    for (const [path, routeId] of [["/admin", "/admin"], ["/admin/login", "/admin/login"]] as const) {
+      const matches = router.matchRoutes(path);
+      expect(matches.at(-1)?.routeId, `${path} should match ${routeId}`).toBe(routeId);
+    }
+  });
 });
