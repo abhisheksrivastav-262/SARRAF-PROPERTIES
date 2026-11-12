@@ -1,10 +1,15 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Check, Film, ImagePlus, LogOut, RefreshCw, Trash2, Upload } from "lucide-react";
 import { getSupabase, isMediaAdmin, MEDIA_PAGES, mediaBucket, maxImageMb, maxVideoMb, type MediaAsset } from "@/lib/supabase";
 
-export const Route = createFileRoute("/admin")({ component: AdminDashboard });
+export const Route = createFileRoute("/admin")({ component: AdminRouteShell });
 const accept = "image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm";
+
+function AdminRouteShell() {
+  const pathname = useRouterState({ select: state => state.location.pathname });
+  return pathname === "/admin" || pathname === "/admin/" ? <AdminDashboard /> : <Outlet />;
+}
 
 function AdminDashboard() {
   const navigate = useNavigate(); const supabase = getSupabase();
