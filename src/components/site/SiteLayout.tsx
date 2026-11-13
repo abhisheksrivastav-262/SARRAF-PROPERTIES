@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowRight, Check, Menu, MessageCircle, Phone, Send, X } from "lucide-react";
 import logoMark from "@/assets/sarraf-logo-mark.webp";
+import { getSupabase } from "@/lib/supabase";
+import { signedMediaUrl, usePublishedSiteSettings } from "@/lib/cms";
 
 export const siteNavigation = [
   ["Home", "/"], ["About Us", "/about"], ["Residential", "/residential-properties"],
@@ -10,8 +12,8 @@ export const siteNavigation = [
   ["Locations", "/locations"], ["Gallery", "/gallery"], ["Contact", "/contact"],
 ] as const;
 
-export function whatsappUrl(message = "Hello Sarraf Properties, I would like to enquire about a property.") {
-  return `https://wa.me/918652869869?text=${encodeURIComponent(message)}`;
+export function whatsappUrl(message = "Hello Sarraf Properties, I would like to enquire about a property.", number = "918652869869") {
+  return `https://wa.me/${number.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
 }
 
 export const enquiryServices = [
@@ -35,7 +37,19 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
   const [enquirySent, setEnquirySent] = useState(false);
   const [servicePrefill, setServicePrefill] = useState("");
   const [messagePrefill, setMessagePrefill] = useState("");
+  const siteSettings = usePublishedSiteSettings();
+  const [publishedLogo, setPublishedLogo] = useState("");
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  useEffect(() => {
+    let alive = true;
+    void getSupabase()?.from("cms_published_settings").select("settings").eq("id", true).maybeSingle().then(({ data }) => {
+      if (!alive || !data?.settings) return;
+      const values = data.settings as Record<string, string>;
+      if (values["logo_path"]) void signedMediaUrl(values["logo_path"]).then(url => { if (alive && url) setPublishedLogo(url); });
+    });
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     const handleOpen = (event: Event) => {
@@ -77,7 +91,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       `Service: ${service}`,
       ...(message ? [`Additional message: ${message}`] : []),
     ];
-    const url = whatsappUrl(lines.join("\n"));
+    const url = whatsappUrl(lines.join("\n"), siteSettings["whatsapp"]);
     const whatsappWindow = window.open(url, "_blank");
     if (whatsappWindow) whatsappWindow.opener = null;
     else window.location.href = url;
@@ -89,24 +103,24 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
     setEnquirySent(false);
   }
   return <>
-    <header className="site-header">
+      <header className="site-header">
       <div className="nav-shell">
-        <Link to="/" className="brand" aria-label="Sarraf Properties home"><img src={logoMark} alt="" className="brand-mark" /><span className="brand-copy"><strong>SARRAF PROPERTIES</strong></span></Link>
+        <Link to="/" className="brand" aria-label="Sarraf Properties home"><img src={publishedLogo || logoMark} alt="" className="brand-mark" /><span className="brand-copy"><strong>SARRAF PROPERTIES</strong></span></Link>
         <nav className="desktop-nav" aria-label="Main navigation">{siteNavigation.map(([label, to]) => <Link key={to} to={to} className={pathname === to ? "active" : ""} aria-current={pathname === to ? "page" : undefined}>{label}</Link>)}</nav>
         <button className="menu-toggle" type="button" aria-label={open ? "Close navigation menu" : "Open navigation menu"} aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? <X /> : <Menu />}</button>
       </div>
       {open && <nav className="mobile-nav" aria-label="Mobile navigation">{siteNavigation.map(([label, to]) => <Link key={to} to={to} onClick={() => setOpen(false)} className={pathname === to ? "active" : ""}>{label}<ArrowRight /></Link>)}</nav>}
     </header>
     {children}
-    <footer className="site-footer"><div className="footer-main section-wrap">
-      <div className="footer-about"><Link to="/" className="brand" aria-label="Sarraf Properties home"><img src={logoMark} alt="" className="brand-mark" /><span className="brand-copy"><strong>SARRAF PROPERTIES</strong></span></Link><p>Your trusted real estate partner in Goregaon and Malad, Mumbai. Professional guidance, personal attention.</p><a className="footer-whatsapp" href={whatsappUrl()} target="_blank" rel="noreferrer">WhatsApp us <ArrowRight /></a></div>
+    <footer className="site-footer" id="contact"><div className="footer-main section-wrap">
+      <div className="footer-about"><Link to="/" className="brand" aria-label="Sarraf Properties home"><img src={publishedLogo || logoMark} alt="" className="brand-mark" /><span className="brand-copy"><strong>SARRAF PROPERTIES</strong></span></Link><p>{siteSettings["footer_text"]}</p><a className="footer-whatsapp" href={whatsappUrl(undefined, siteSettings["whatsapp"])} target="_blank" rel="noreferrer">WhatsApp us <ArrowRight /></a><div className="footer-social-links">{siteSettings.facebook && <a href={siteSettings.facebook} target="_blank" rel="noreferrer">Facebook</a>}{siteSettings.instagram && <a href={siteSettings.instagram} target="_blank" rel="noreferrer">Instagram</a>}{siteSettings.youtube && <a href={siteSettings.youtube} target="_blank" rel="noreferrer">YouTube</a>}</div></div>
       <div className="footer-column"><span className="footer-label">EXPLORE</span>{siteNavigation.map(([label, to]) => <Link key={to} to={to}>{label}</Link>)}</div>
       <div className="footer-column"><span className="footer-label">OUR SERVICES</span><Link to="/residential-properties">Residential properties</Link><Link to="/commercial-properties">Commercial properties</Link><Link to="/buy-property">Buying assistance</Link><Link to="/sell-property">Selling assistance</Link><Link to="/services">Consultation & investment</Link></div>
-      <div className="footer-column footer-contact"><span className="footer-label">GET IN TOUCH</span><strong>Rajan Sarraf</strong><a href="tel:8652869869">8652869869</a><a href="mailto:Sarrafproperties2011@gmail.com">Sarrafproperties2011@gmail.com</a><span>Goregaon &amp; Malad, Mumbai</span><p>Shop No.4, Patidar Society,<br />Opp. Ezone Mall, Malad (W),<br />Mumbai - 400064</p></div>
+      <div className="footer-column footer-contact"><span className="footer-label">GET IN TOUCH</span><strong>Rajan Sarraf</strong><a href={`tel:${siteSettings["phone"]}`}>{siteSettings["phone"]}</a><a href={`mailto:${siteSettings["email"]}`}>{siteSettings["email"]}</a><span>Goregaon &amp; Malad, Mumbai</span><p>{siteSettings["address"]}</p></div>
     </div><div className="footer-bottom section-wrap"><span>© 2026 SARRAF PROPERTIES. All Rights Reserved.</span><span>GOREGAON <i /> MALAD <i /> MUMBAI</span></div></footer>
     <div className="floating-contact" aria-label="Quick contact">
       <button className="floating-contact-link floating-whatsapp" type="button" onClick={() => openEnquiryForm()} aria-label="Start a WhatsApp enquiry" title="Start a WhatsApp enquiry"><MessageCircle /><span>WhatsApp</span></button>
-      <a className="floating-contact-link floating-call" href="tel:8652869869" aria-label="Call Sarraf Properties" title="Call Sarraf Properties"><Phone /><span>Call us</span></a>
+      <a className="floating-contact-link floating-call" href={`tel:${siteSettings["phone"]}`} aria-label="Call Sarraf Properties" title="Call Sarraf Properties"><Phone /><span>Call us</span></a>
     </div>
     {enquiryOpen && <div className="global-enquiry-backdrop" onClick={(event) => { if (event.target === event.currentTarget) closeEnquiry(); }}>
       <section className="global-enquiry-dialog" role="dialog" aria-modal="true" aria-labelledby="global-enquiry-title">

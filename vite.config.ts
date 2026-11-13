@@ -10,6 +10,9 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  // Keep local and CI production builds on Vercel instead of Nitro's default
+  // Cloudflare preset, which emits a Wrangler config.
+  nitro: { preset: "vercel" },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

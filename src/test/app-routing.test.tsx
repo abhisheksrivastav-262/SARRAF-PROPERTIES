@@ -31,9 +31,15 @@ describe("App routing", () => {
 
   it("matches the protected admin dashboard and private login routes", () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
-    for (const [path, routeId] of [["/admin", "/admin"], ["/admin/login", "/admin/login"]] as const) {
+    for (const [path, routeId] of [["/admin", "/admin"], ["/admin/login", "/admin/login"], ["/admin/setup", "/admin/setup"], ["/api/admin/bootstrap", "/api/admin/bootstrap"]] as const) {
       const matches = router.matchRoutes(path);
       expect(matches.at(-1)?.routeId, `${path} should match ${routeId}`).toBe(routeId);
     }
+  });
+
+  it("matches public property detail URLs by slug", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    const matches = router.matchRoutes("/property/example-listing");
+    expect(matches.at(-1)?.routeId).toBe("/property/$slug");
   });
 });

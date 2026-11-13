@@ -1,5 +1,6 @@
 import { useEffect, useState, type ImgHTMLAttributes } from "react";
 import { getSupabase, type MediaAsset } from "@/lib/supabase";
+import { signedMediaUrl } from "@/lib/cms";
 
 /** A page/section slot keeps the bundled image as a fallback until an admin publishes media. */
 export function ManagedMediaImage({ page, section, fallback, ...props }: ImgHTMLAttributes<HTMLImageElement> & { page: string; section: string; fallback: string }) {
@@ -12,8 +13,8 @@ export function ManagedMediaImage({ page, section, fallback, ...props }: ImgHTML
       db.from("media_assets").select("*").eq("page_slug", page).eq("section_key", section).order("sort_order").limit(1),
     ]).then(([slot, media]) => {
       if (!alive) return;
-      if (slot.data?.use_managed_media) setMedia(media.data?.[0] ? { url: media.data[0].public_url, type: media.data[0].media_type } : { url: "", type: "image" });
-      else if (media.data?.[0]?.public_url) setMedia({ url: media.data[0].public_url, type: media.data[0].media_type });
+      if (slot.data?.use_managed_media && !media.data?.[0]) { setMedia({ url: fallback, type: "image" }); return; }
+      if (media.data?.[0]?.file_path) void signedMediaUrl(media.data[0].file_path).then(url => { if (alive) setMedia({ url, type: media.data[0].media_type }); });
     }).catch(() => undefined);
     return () => { alive = false; };
   }, [page, section, fallback]);
@@ -32,8 +33,8 @@ export function ManagedMediaGallery({ page, section, fallback }: { page: string;
       db.from("media_assets").select("*").eq("page_slug", page).eq("section_key", section).order("sort_order"),
     ]).then(([slot, media]) => {
       if (!alive) return;
-      if (slot.data?.use_managed_media) setItems(((media.data || []) as MediaAsset[]).map(row => ({ src: row.public_url, alt: row.alt_text || row.title, title: row.title, type: row.media_type })));
-      else if (media.data?.length) setItems((media.data as MediaAsset[]).map(row => ({ src: row.public_url, alt: row.alt_text || row.title, title: row.title, type: row.media_type })));
+      if (media.data?.length) void Promise.all((media.data as MediaAsset[]).map(async row => ({ src: await signedMediaUrl(row.file_path), alt: row.alt_text || row.title, title: row.title, type: row.media_type }))).then(items => { if (alive) setItems(items); });
+      else if (slot.data?.use_managed_media) setItems(fallback);
     }).catch(() => undefined);
     return () => { alive = false; };
   }, [page, section, fallback]);

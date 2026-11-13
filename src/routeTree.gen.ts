@@ -21,6 +21,9 @@ import { Route as ResidentialPropertiesRouteImport } from './routes/residential-
 import { Route as SellPropertyRouteImport } from './routes/sell-property'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminSetupRouteImport } from './routes/admin.setup'
+import { Route as PropertySlugRouteImport } from './routes/property.$slug'
+import { Route as ApiAdminBootstrapRouteImport } from './routes/api.admin.bootstrap'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -82,6 +85,21 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSetupRoute = AdminSetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => AdminRoute,
+} as any)
+const PropertySlugRoute = PropertySlugRouteImport.update({
+  id: '/property/$slug',
+  path: '/property/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminBootstrapRoute = ApiAdminBootstrapRouteImport.update({
+  id: '/api/admin/bootstrap',
+  path: '/api/admin/bootstrap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +114,9 @@ export interface FileRoutesByFullPath {
   '/sell-property': typeof SellPropertyRoute
   '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/setup': typeof AdminSetupRoute
+  '/property/$slug': typeof PropertySlugRoute
+  '/api/admin/bootstrap': typeof ApiAdminBootstrapRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +131,9 @@ export interface FileRoutesByTo {
   '/sell-property': typeof SellPropertyRoute
   '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/setup': typeof AdminSetupRoute
+  '/property/$slug': typeof PropertySlugRoute
+  '/api/admin/bootstrap': typeof ApiAdminBootstrapRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +149,9 @@ export interface FileRoutesById {
   '/sell-property': typeof SellPropertyRoute
   '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/setup': typeof AdminSetupRoute
+  '/property/$slug': typeof PropertySlugRoute
+  '/api/admin/bootstrap': typeof ApiAdminBootstrapRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +168,9 @@ export interface FileRouteTypes {
     | '/sell-property'
     | '/services'
     | '/admin/login'
+    | '/admin/setup'
+    | '/property/$slug'
+    | '/api/admin/bootstrap'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +185,9 @@ export interface FileRouteTypes {
     | '/sell-property'
     | '/services'
     | '/admin/login'
+    | '/admin/setup'
+    | '/property/$slug'
+    | '/api/admin/bootstrap'
   id:
     | '__root__'
     | '/'
@@ -169,6 +202,9 @@ export interface FileRouteTypes {
     | '/sell-property'
     | '/services'
     | '/admin/login'
+    | '/admin/setup'
+    | '/property/$slug'
+    | '/api/admin/bootstrap'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -183,6 +219,8 @@ export interface RootRouteChildren {
   ResidentialPropertiesRoute: typeof ResidentialPropertiesRoute
   SellPropertyRoute: typeof SellPropertyRoute
   ServicesRoute: typeof ServicesRoute
+  PropertySlugRoute: typeof PropertySlugRoute
+  ApiAdminBootstrapRoute: typeof ApiAdminBootstrapRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -271,15 +309,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/setup': {
+      id: '/admin/setup'
+      path: '/setup'
+      fullPath: '/admin/setup'
+      preLoaderRoute: typeof AdminSetupRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/property/$slug': {
+      id: '/property/$slug'
+      path: '/property/$slug'
+      fullPath: '/property/$slug'
+      preLoaderRoute: typeof PropertySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/bootstrap': {
+      id: '/api/admin/bootstrap'
+      path: '/api/admin/bootstrap'
+      fullPath: '/api/admin/bootstrap'
+      preLoaderRoute: typeof ApiAdminBootstrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminSetupRoute: typeof AdminSetupRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
+  AdminSetupRoute: AdminSetupRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -296,6 +357,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResidentialPropertiesRoute: ResidentialPropertiesRoute,
   SellPropertyRoute: SellPropertyRoute,
   ServicesRoute: ServicesRoute,
+  PropertySlugRoute: PropertySlugRoute,
+  ApiAdminBootstrapRoute: ApiAdminBootstrapRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -32,6 +32,9 @@ import serviceSellingImage from "@/assets/service-selling.webp";
 import serviceInvestmentImage from "@/assets/service-investment.webp";
 import serviceConsultationImage from "@/assets/service-consultation.webp";
 import { ManagedMediaImage } from "@/components/site/ManagedMedia";
+import { PropertyListings } from "@/components/site/PropertyListings";
+import { CmsPageView } from "@/components/site/CmsPageView";
+import { usePublishedSiteSettings } from "@/lib/cms";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -77,6 +80,11 @@ const gallery = [
 ];
 
 function HomePage() {
+  return <CmsPageView slug="home" fallback={<LegacyHomePage/>}/>;
+}
+
+function LegacyHomePage() {
+  const siteSettings = usePublishedSiteSettings();
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -155,6 +163,8 @@ function HomePage() {
         </div>
       </section>
 
+      <PropertyListings featuredOnly />
+
       <section className="services-section section-wrap" id="services">
         <div className="section-heading centered-heading">
           <div className="eyebrow dark-eyebrow"><span /> OUR SIX CORE SERVICES</div>
@@ -166,7 +176,7 @@ function HomePage() {
             <ManagedMediaImage page="home" section={`service-${index + 1}`} className="service-row-image" fallback={image} alt={`${title} service`} width={1200} height={800} loading="lazy" />
             <div className="service-top"><span className="service-icon"><Icon /></span><span className="service-index">0{index + 1}</span></div>
             <h3>{title}</h3><p>{text}</p>
-            <div className="service-card-actions"><button className="service-enquiry" type="button" onClick={() => openEnquiryForm(title)} aria-label={`Enquire about ${title}`}>Enquire <ArrowRight /></button><a className="service-call-now" href="tel:8652869869" aria-label={`Call now about ${title}`}><Phone /> Call now</a></div>
+            <div className="service-card-actions"><button className="service-enquiry" type="button" onClick={() => openEnquiryForm(title)} aria-label={`Enquire about ${title}`}>Enquire <ArrowRight /></button><a className="service-call-now" href={`tel:${siteSettings.phone}`} aria-label={`Call now about ${title}`}><Phone /> Call now</a></div>
           </article>)}
         </div>
       </section>
@@ -192,7 +202,7 @@ function HomePage() {
               <div className="eyebrow"><span /> READY TO TALK?</div>
               <h3>Get personal help with your next move.</h3>
               <p>Tell us what you’re looking for or call Rajan Sarraf directly.</p>
-              <a className="button-gold call-now-button" href="tel:8652869869"><Phone /> Call now <span>8652869869</span></a>
+              <a className="button-gold call-now-button" href={`tel:${siteSettings.phone}`}><Phone /> Call now <span>{siteSettings.phone}</span></a>
             </div>
             <div className="enquiry-panel featured-enquiry-panel">
               <div className="form-heading"><span>PERSONAL PROPERTY GUIDANCE</span><h3>Make an enquiry</h3><p>Share your details and continue in WhatsApp.</p></div>
@@ -235,8 +245,8 @@ function HomePage() {
           <h2>Every good move<br />starts with a <em>conversation.</em></h2>
           <p>Tell us what you’re looking for. Rajan and the team are here to help.</p>
           <div className="contact-direct">
-            <a href="tel:8652869869"><span className="contact-icon"><Phone /></span><span><small>CALL US</small><strong>86528 69869</strong></span><ArrowRight /></a>
-            <a href={whatsappUrl()} target="_blank" rel="noreferrer"><span className="contact-icon"><MessageCircle /></span><span><small>WHATSAPP</small><strong>Send an enquiry</strong></span><ArrowRight /></a>
+            <a href={`tel:${siteSettings.phone}`}><span className="contact-icon"><Phone /></span><span><small>CALL US</small><strong>{siteSettings.phone}</strong></span><ArrowRight /></a>
+            <a href={whatsappUrl(undefined, siteSettings.whatsapp)} target="_blank" rel="noreferrer"><span className="contact-icon"><MessageCircle /></span><span><small>WHATSAPP</small><strong>Send an enquiry</strong></span><ArrowRight /></a>
             <a href="mailto:Sarrafproperties2011@gmail.com"><span className="contact-icon"><Mail /></span><span><small>EMAIL</small><strong>Sarrafproperties2011@gmail.com</strong></span><ArrowRight /></a>
           </div>
           <div className="address-block"><MapPin /><p><strong>Visit our office</strong><br />Shop No.4, Patidar Society,<br />Opp. Ezone Mall, Malad (W),<br />Mumbai - 400064</p></div>
