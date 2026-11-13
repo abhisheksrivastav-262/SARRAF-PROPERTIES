@@ -1,5 +1,19 @@
 import { useState, type FormEvent } from "react";
-import { ArrowRight, Building2, Check, ChevronLeft, ChevronRight, Home, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles, TrendingUp, X } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  MapPin,
+  MessageCircle,
+  Phone,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  X,
+} from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { enquiryServices, openEnquiryForm, whatsappUrl } from "./SiteLayout";
 import heroImage from "@/assets/mumbai-residences-hero.jpg";
@@ -17,81 +31,872 @@ import { PropertyListings } from "./PropertyListings";
 import { CmsPageView } from "./CmsPageView";
 import { usePublishedSiteSettings } from "@/lib/cms";
 
-const contact = { name: "Rajan Sarraf", phone: "8652869869", email: "Sarrafproperties2011@gmail.com", address: "Shop No.4, Patidar Society, Opp. Ezone Mall, Malad (W), Mumbai - 400064" };
+const contact = {
+  name: "Rajan Sarraf",
+  phone: "8652869869",
+  email: "Sarrafproperties2011@gmail.com",
+  address: "Shop No.4, Patidar Society, Opp. Ezone Mall, Malad (W), Mumbai - 400064",
+};
 const photos = [
-  { src: towerImage, category: "Residential", title: "Contemporary residences", alt: "Contemporary residential tower surrounded by greenery" },
-  { src: apartmentImage, category: "Interiors", title: "Warm modern interiors", alt: "Premium apartment interior" },
-  { src: commercialImage, category: "Commercial", title: "Modern workspaces", alt: "Modern commercial property" },
-  { src: heroImage, category: "Architecture", title: "Mumbai city living", alt: "Mumbai residential skyline" },
+  {
+    src: towerImage,
+    category: "Residential",
+    title: "Contemporary residences",
+    alt: "Contemporary residential tower surrounded by greenery",
+  },
+  {
+    src: apartmentImage,
+    category: "Interiors",
+    title: "Warm modern interiors",
+    alt: "Premium apartment interior",
+  },
+  {
+    src: commercialImage,
+    category: "Commercial",
+    title: "Modern workspaces",
+    alt: "Modern commercial property",
+  },
+  {
+    src: heroImage,
+    category: "Architecture",
+    title: "Mumbai city living",
+    alt: "Mumbai residential skyline",
+  },
 ];
 const featureData = [
-  { icon: Home, image: serviceResidentialImage, title: "Residential Property Consultation", text: "Explore apartments, flats and homes suited to your needs, preferred neighbourhood and plans." },
-  { icon: Building2, image: serviceCommercialImage, title: "Commercial Property Consultation", text: "Discuss office, retail and business space requirements across Goregaon and Malad." },
-  { icon: ShieldCheck, image: serviceBuyingImage, title: "Property Buying Assistance", text: "Get clear guidance from initial search and property visits through your decision process." },
-  { icon: Sparkles, image: serviceSellingImage, title: "Property Selling Assistance", text: "Plan your sale with attentive local support, thoughtful presentation and enquiry coordination." },
-  { icon: TrendingUp, image: serviceInvestmentImage, title: "Property Investment Guidance", text: "Talk through your goals and evaluate property options with a grounded local perspective." },
-  { icon: MessageCircle, image: serviceConsultationImage, title: "Real Estate Consultation", text: "Get a personal conversation about the next step in your property journey." },
+  {
+    icon: Home,
+    image: serviceResidentialImage,
+    title: "Residential Property Consultation",
+    text: "Explore apartments, flats and homes suited to your needs, preferred neighbourhood and plans.",
+  },
+  {
+    icon: Building2,
+    image: serviceCommercialImage,
+    title: "Commercial Property Consultation",
+    text: "Discuss office, retail and business space requirements across Goregaon and Malad.",
+  },
+  {
+    icon: ShieldCheck,
+    image: serviceBuyingImage,
+    title: "Property Buying Assistance",
+    text: "Get clear guidance from initial search and property visits through your decision process.",
+  },
+  {
+    icon: Sparkles,
+    image: serviceSellingImage,
+    title: "Property Selling Assistance",
+    text: "Plan your sale with attentive local support, thoughtful presentation and enquiry coordination.",
+  },
+  {
+    icon: TrendingUp,
+    image: serviceInvestmentImage,
+    title: "Property Investment Guidance",
+    text: "Talk through your goals and evaluate property options with a grounded local perspective.",
+  },
+  {
+    icon: MessageCircle,
+    image: serviceConsultationImage,
+    title: "Real Estate Consultation",
+    text: "Get a personal conversation about the next step in your property journey.",
+  },
 ];
 
-type PageKey = "about" | "residential" | "commercial" | "buy" | "sell" | "services" | "locations" | "gallery" | "contact";
-const pageInfo: Record<PageKey, { eyebrow: string; title: string; accent: string; intro: string }> = {
-  about: { eyebrow: "A LOCAL NAME YOU CAN TRUST", title: "Real estate with a", accent: "personal touch.", intro: "Sarraf Properties is a local real estate partner serving Goregaon and Malad, Mumbai. We bring professional guidance and attentive service to every property conversation." },
-  residential: { eyebrow: "FIND A PLACE TO CALL YOURS", title: "Residential spaces", accent: "for every chapter.", intro: "Explore residential property possibilities across Mumbai’s western suburbs, from apartments and flats to modern homes and residential projects." },
-  commercial: { eyebrow: "SPACE TO DO BUSINESS", title: "Commercial property", accent: "with purpose.", intro: "Discover office, retail and business space opportunities across Goregaon and Malad with a local team ready to understand your requirements." },
-  buy: { eyebrow: "YOUR NEXT MOVE, WELL CONSIDERED", title: "Buy property with", accent: "clear guidance.", intro: "From narrowing down your search to making a confident decision, we help you navigate the property buying process with personal support." },
-  sell: { eyebrow: "A THOUGHTFUL PROPERTY SALE", title: "Sell with a local", accent: "partner beside you.", intro: "Get personal assistance as you prepare to sell, understand your options and connect with prospective property seekers." },
-  services: { eyebrow: "HERE FOR EVERY STEP", title: "Real estate, made", accent: "more personal.", intro: "Considered support for residential and commercial property decisions, whether you are buying, selling or exploring your next move." },
-  locations: { eyebrow: "KNOW THE NEIGHBOURHOOD", title: "Rooted in western", accent: "Mumbai.", intro: "Local insight makes all the difference. We serve the neighbourhoods of Goregaon and Malad, Mumbai." },
-  gallery: { eyebrow: "A VISUAL PROPERTY JOURNEY", title: "Spaces with", accent: "possibility.", intro: "A curated visual showcase of residential, commercial and interior styles. Images illustrate property types and are not current listings." },
-  contact: { eyebrow: "LET’S START A CONVERSATION", title: "Tell us what", accent: "you’re looking for.", intro: "Speak with Rajan Sarraf about your residential or commercial property needs in Goregaon, Malad or the surrounding Mumbai area." },
-};
+type PageKey =
+  | "about"
+  | "residential"
+  | "commercial"
+  | "buy"
+  | "sell"
+  | "services"
+  | "locations"
+  | "gallery"
+  | "contact";
+const pageInfo: Record<PageKey, { eyebrow: string; title: string; accent: string; intro: string }> =
+  {
+    about: {
+      eyebrow: "A LOCAL NAME YOU CAN TRUST",
+      title: "Real estate with a",
+      accent: "personal touch.",
+      intro:
+        "Sarraf Properties is a local real estate partner serving Goregaon and Malad, Mumbai. We bring professional guidance and attentive service to every property conversation.",
+    },
+    residential: {
+      eyebrow: "FIND A PLACE TO CALL YOURS",
+      title: "Residential spaces",
+      accent: "for every chapter.",
+      intro:
+        "Explore residential property possibilities across Mumbai’s western suburbs, from apartments and flats to modern homes and residential projects.",
+    },
+    commercial: {
+      eyebrow: "SPACE TO DO BUSINESS",
+      title: "Commercial property",
+      accent: "with purpose.",
+      intro:
+        "Discover office, retail and business space opportunities across Goregaon and Malad with a local team ready to understand your requirements.",
+    },
+    buy: {
+      eyebrow: "YOUR NEXT MOVE, WELL CONSIDERED",
+      title: "Buy property with",
+      accent: "clear guidance.",
+      intro:
+        "From narrowing down your search to making a confident decision, we help you navigate the property buying process with personal support.",
+    },
+    sell: {
+      eyebrow: "A THOUGHTFUL PROPERTY SALE",
+      title: "Sell with a local",
+      accent: "partner beside you.",
+      intro:
+        "Get personal assistance as you prepare to sell, understand your options and connect with prospective property seekers.",
+    },
+    services: {
+      eyebrow: "HERE FOR EVERY STEP",
+      title: "Real estate, made",
+      accent: "more personal.",
+      intro:
+        "Considered support for residential and commercial property decisions, whether you are buying, selling or exploring your next move.",
+    },
+    locations: {
+      eyebrow: "KNOW THE NEIGHBOURHOOD",
+      title: "Rooted in western",
+      accent: "Mumbai.",
+      intro:
+        "Local insight makes all the difference. We serve the neighbourhoods of Goregaon and Malad, Mumbai.",
+    },
+    gallery: {
+      eyebrow: "A VISUAL PROPERTY JOURNEY",
+      title: "Spaces with",
+      accent: "possibility.",
+      intro:
+        "A curated visual showcase of residential, commercial and interior styles. Images illustrate property types and are not current listings.",
+    },
+    contact: {
+      eyebrow: "LET’S START A CONVERSATION",
+      title: "Tell us what",
+      accent: "you’re looking for.",
+      intro:
+        "Speak with Rajan Sarraf about your residential or commercial property needs in Goregaon, Malad or the surrounding Mumbai area.",
+    },
+  };
 
 function EnquiryForm({ type = "property" }: { type?: string }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setError("");
+    event.preventDefault();
+    setError("");
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") ?? "").trim();
     const phone = String(data.get("phone") ?? "").trim();
     const email = String(data.get("email") ?? "").trim();
     const message = String(data.get("message") ?? "").trim();
     const service = String(data.get("service") ?? "");
-    if (name.length < 2 || !/^[+\d()\s-]{8,18}$/.test(phone) || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || !enquiryServices.includes(service as (typeof enquiryServices)[number])) { setError("Please check your name, mobile number, email and selected service."); return; }
-    const enquiry = [`Hello Sarraf Properties, I’m ${name}.`, `Mobile: ${phone}`, ...(email ? [`Email: ${email}`] : []), `Service: ${service}`, ...(message ? [`Additional message: ${message}`] : [])].join("\n");
+    if (
+      name.length < 2 ||
+      !/^[+\d()\s-]{8,18}$/.test(phone) ||
+      (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) ||
+      !enquiryServices.includes(service as (typeof enquiryServices)[number])
+    ) {
+      setError("Please check your name, mobile number, email and selected service.");
+      return;
+    }
+    const enquiry = [
+      `Hello Sarraf Properties, I’m ${name}.`,
+      `Mobile: ${phone}`,
+      ...(email ? [`Email: ${email}`] : []),
+      `Service: ${service}`,
+      ...(message ? [`Additional message: ${message}`] : []),
+    ].join("\n");
     window.open(whatsappUrl(enquiry), "_blank", "noopener,noreferrer");
     setSent(true);
   }
-  if (sent) return <div className="form-success" role="status"><span><Check /></span><h3>Enquiry ready in WhatsApp</h3><p>Complete sending your prefilled message in WhatsApp to reach Rajan Sarraf.</p><button type="button" className="button-outline" onClick={() => setSent(false)}>Send another enquiry</button></div>;
-  return <form className="enquiry-form" onSubmit={submit} noValidate><div className="form-heading"><span>PERSONAL PROPERTY GUIDANCE</span><h3>How can we help?</h3><p>Share a few details and we’ll prepare a WhatsApp enquiry.</p></div>
-    <label htmlFor={`${type}-name`}>Your name *</label><input id={`${type}-name`} name="name" autoComplete="name" required minLength={2} placeholder="Name" />
-    <div className="form-row"><div><label htmlFor={`${type}-phone`}>Mobile number *</label><input id={`${type}-phone`} name="phone" type="tel" autoComplete="tel" required pattern="[+0-9() -]{8,18}" placeholder="Mobile number" /></div><div><label htmlFor={`${type}-email`}>Email (optional)</label><input id={`${type}-email`} name="email" type="email" autoComplete="email" placeholder="Email address" /></div></div>
-    <label htmlFor={`${type}-service`}>Service *</label><select id={`${type}-service`} name="service" required defaultValue={type === "buy" ? "Property Buying Assistance" : type === "sell" ? "Property Selling Assistance" : ""}><option value="" disabled>Select a service</option>{enquiryServices.map((service) => <option key={service} value={service}>{service}</option>)}</select>
-    <label htmlFor={`${type}-message`}>Additional message (optional)</label><textarea id={`${type}-message`} name="message" rows={4} placeholder="Tell us about your plans…" />
-    {error && <p className="form-error" role="alert">{error}</p>}<button className="button-gold form-submit" type="submit">Continue on WhatsApp <MessageCircle /></button><small className="form-privacy">We’ll open WhatsApp with your message ready for you to review and send.</small>
-  </form>;
+  if (sent)
+    return (
+      <div className="form-success" role="status">
+        <span>
+          <Check />
+        </span>
+        <h3>Enquiry ready in WhatsApp</h3>
+        <p>Complete sending your prefilled message in WhatsApp to reach Rajan Sarraf.</p>
+        <button type="button" className="button-outline" onClick={() => setSent(false)}>
+          Send another enquiry
+        </button>
+      </div>
+    );
+  return (
+    <form className="enquiry-form" onSubmit={submit} noValidate>
+      <div className="form-heading">
+        <span>PERSONAL PROPERTY GUIDANCE</span>
+        <h3>How can we help?</h3>
+        <p>Share a few details and we’ll prepare a WhatsApp enquiry.</p>
+      </div>
+      <label htmlFor={`${type}-name`}>Your name *</label>
+      <input
+        id={`${type}-name`}
+        name="name"
+        autoComplete="name"
+        required
+        minLength={2}
+        placeholder="Name"
+      />
+      <div className="form-row">
+        <div>
+          <label htmlFor={`${type}-phone`}>Mobile number *</label>
+          <input
+            id={`${type}-phone`}
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            required
+            pattern="[+0-9() -]{8,18}"
+            placeholder="Mobile number"
+          />
+        </div>
+        <div>
+          <label htmlFor={`${type}-email`}>Email (optional)</label>
+          <input
+            id={`${type}-email`}
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="Email address"
+          />
+        </div>
+      </div>
+      <label htmlFor={`${type}-service`}>Service *</label>
+      <select
+        id={`${type}-service`}
+        name="service"
+        required
+        defaultValue={
+          type === "buy"
+            ? "Property Buying Assistance"
+            : type === "sell"
+              ? "Property Selling Assistance"
+              : ""
+        }
+      >
+        <option value="" disabled>
+          Select a service
+        </option>
+        {enquiryServices.map((service) => (
+          <option key={service} value={service}>
+            {service}
+          </option>
+        ))}
+      </select>
+      <label htmlFor={`${type}-message`}>Additional message (optional)</label>
+      <textarea
+        id={`${type}-message`}
+        name="message"
+        rows={4}
+        placeholder="Tell us about your plans…"
+      />
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
+      <button className="button-gold form-submit" type="submit">
+        Continue on WhatsApp <MessageCircle />
+      </button>
+      <small className="form-privacy">
+        We’ll open WhatsApp with your message ready for you to review and send.
+      </small>
+    </form>
+  );
 }
-function PhotoStrip({ titles = false, page }: { titles?: boolean; page: PageKey }) { const slug = ({ residential: "residential-properties", commercial: "commercial-properties", buy: "buy-property", sell: "sell-property" } as Record<string, string>)[page] || page; return <div className="photo-strip">{photos.slice(0, 3).map((photo, index) => <figure key={photo.title}><ManagedMediaImage page={slug} section={`gallery-${index + 1}`} fallback={photo.src} alt={photo.alt} loading="lazy" />{titles && <figcaption>{photo.title}</figcaption>}</figure>)}</div>; }
-function PageHero({ page }: { page: PageKey }) { const info = pageInfo[page]; const slug = ({ residential: "residential-properties", commercial: "commercial-properties", buy: "buy-property", sell: "sell-property" } as Record<string, string>)[page] || page; const fallback = page === "commercial" ? commercialImage : page === "residential" || page === "gallery" ? towerImage : heroImage; const service = page === "residential" ? "Residential Property Consultation" : page === "commercial" ? "Commercial Property Consultation" : page === "buy" ? "Property Buying Assistance" : page === "sell" ? "Property Selling Assistance" : "Real Estate Consultation"; return <section className="page-hero"><ManagedMediaImage page={slug} section="hero" fallback={fallback} alt="" aria-hidden="true" className="managed-hero-media"/><div className="page-hero-shade"/><div className="page-hero-content"><div className="eyebrow"><span/>{info.eyebrow}</div><h1>{info.title}<br/><em>{info.accent}</em></h1><p>{info.intro}</p><button className="button-gold" type="button" onClick={() => openEnquiryForm(service)}>Speak with us <ArrowRight /></button></div></section>; }
-function IntroSection({ title, text, image = towerImage, page }: { title: string; text: string; image?: string; page: PageKey }) { const slug = ({ residential: "residential-properties", commercial: "commercial-properties", buy: "buy-property", sell: "sell-property" } as Record<string, string>)[page] || page; return <section className="page-intro section-wrap"><div className="page-intro-image"><ManagedMediaImage page={slug} section="intro" fallback={image} alt="Premium property in Mumbai" loading="lazy" /></div><div><div className="eyebrow dark-eyebrow"><span/> SARRAF PROPERTIES</div><h2>{title}</h2><p>{text}</p><p>Every client’s needs are different. We listen first, share clear information and provide personal assistance throughout the conversation.</p><Link className="underlined-link" to="/contact">Talk to our team <ArrowRight/></Link></div></section>; }
-function CtaBand({ title = "Let’s find the right next step." }: { title?: string }) { const settings = usePublishedSiteSettings(); return <section className="cta-band"><div className="section-wrap"><div><div className="eyebrow"><span/> YOUR TRUSTED REAL ESTATE PARTNER</div><h2>{title}</h2></div><div className="cta-actions"><button className="button-gold" type="button" onClick={() => openEnquiryForm()}>Make an enquiry <ArrowRight/></button><a className="cta-whatsapp" href={whatsappUrl(undefined, settings.whatsapp)} target="_blank" rel="noreferrer"><MessageCircle/> WhatsApp us</a></div></div></section>; }
+function PhotoStrip({ titles = false, page }: { titles?: boolean; page: PageKey }) {
+  const slug =
+    (
+      {
+        residential: "residential-properties",
+        commercial: "commercial-properties",
+        buy: "buy-property",
+        sell: "sell-property",
+      } as Record<string, string>
+    )[page] || page;
+  return (
+    <div className="photo-strip">
+      {photos.slice(0, 3).map((photo, index) => (
+        <figure key={photo.title}>
+          <ManagedMediaImage
+            page={slug}
+            section={`gallery-${index + 1}`}
+            fallback={photo.src}
+            alt={photo.alt}
+            loading="lazy"
+          />
+          {titles && <figcaption>{photo.title}</figcaption>}
+        </figure>
+      ))}
+    </div>
+  );
+}
+function PageHero({ page }: { page: PageKey }) {
+  const info = pageInfo[page];
+  const slug =
+    (
+      {
+        residential: "residential-properties",
+        commercial: "commercial-properties",
+        buy: "buy-property",
+        sell: "sell-property",
+      } as Record<string, string>
+    )[page] || page;
+  const fallback =
+    page === "commercial"
+      ? commercialImage
+      : page === "residential" || page === "gallery"
+        ? towerImage
+        : heroImage;
+  const service =
+    page === "residential"
+      ? "Residential Property Consultation"
+      : page === "commercial"
+        ? "Commercial Property Consultation"
+        : page === "buy"
+          ? "Property Buying Assistance"
+          : page === "sell"
+            ? "Property Selling Assistance"
+            : "Real Estate Consultation";
+  return (
+    <section className="page-hero">
+      <ManagedMediaImage
+        page={slug}
+        section="hero"
+        fallback={fallback}
+        alt=""
+        aria-hidden="true"
+        className="managed-hero-media"
+      />
+      <div className="page-hero-shade" />
+      <div className="page-hero-content">
+        <div className="eyebrow">
+          <span />
+          {info.eyebrow}
+        </div>
+        <h1>
+          {info.title}
+          <br />
+          <em>{info.accent}</em>
+        </h1>
+        <p>{info.intro}</p>
+        <button className="button-gold" type="button" onClick={() => openEnquiryForm(service)}>
+          Speak with us <ArrowRight />
+        </button>
+      </div>
+    </section>
+  );
+}
+function IntroSection({
+  title,
+  text,
+  image = towerImage,
+  page,
+}: {
+  title: string;
+  text: string;
+  image?: string;
+  page: PageKey;
+}) {
+  const slug =
+    (
+      {
+        residential: "residential-properties",
+        commercial: "commercial-properties",
+        buy: "buy-property",
+        sell: "sell-property",
+      } as Record<string, string>
+    )[page] || page;
+  return (
+    <section className="page-intro section-wrap">
+      <div className="page-intro-image">
+        <ManagedMediaImage
+          page={slug}
+          section="intro"
+          fallback={image}
+          alt="Premium property in Mumbai"
+          loading="lazy"
+        />
+      </div>
+      <div>
+        <div className="eyebrow dark-eyebrow">
+          <span /> SARRAF PROPERTIES
+        </div>
+        <h2>{title}</h2>
+        <p>{text}</p>
+        <p>
+          Every client’s needs are different. We listen first, share clear information and provide
+          personal assistance throughout the conversation.
+        </p>
+        <Link className="underlined-link" to="/contact">
+          Talk to our team <ArrowRight />
+        </Link>
+      </div>
+    </section>
+  );
+}
+function CtaBand({ title }: { title?: string }) {
+  const settings = usePublishedSiteSettings();
+  return (
+    <section className="cta-band">
+      <div className="section-wrap">
+        <div>
+          <div className="eyebrow">
+            <span /> YOUR TRUSTED REAL ESTATE PARTNER
+          </div>
+          <h2>{title || settings.global_cta_title}</h2>
+          {settings.global_cta_description && <p>{settings.global_cta_description}</p>}
+        </div>
+        <div className="cta-actions">
+          <button className="button-gold" type="button" onClick={() => openEnquiryForm()}>
+            {settings.global_cta_label || "Make an enquiry"} <ArrowRight />
+          </button>
+          <a
+            className="cta-whatsapp"
+            href={whatsappUrl(undefined, settings.whatsapp)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <MessageCircle /> WhatsApp us
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export function ContentPage({ page }: { page: PageKey }) {
-  const slug = ({ residential: "residential-properties", commercial: "commercial-properties", buy: "buy-property", sell: "sell-property" } as Record<string, string>)[page] || page;
-  return <CmsPageView slug={slug} fallback={<LegacyContentPage page={page}/>} />;
+  const slug =
+    (
+      {
+        residential: "residential-properties",
+        commercial: "commercial-properties",
+        buy: "buy-property",
+        sell: "sell-property",
+      } as Record<string, string>
+    )[page] || page;
+  return <CmsPageView slug={slug} fallback={<LegacyContentPage page={page} />} />;
 }
 
 function LegacyContentPage({ page }: { page: PageKey }) {
   const siteSettings = usePublishedSiteSettings();
-  const [filters, setFilters] = useState<string[]>(["Residential", "Commercial"]); const [lightbox, setLightbox] = useState<number | null>(null);
-  return <main className={`content-page page-${page}`}><PageHero page={page}/>
-    {page === "about" && <><IntroSection page={page} title="A trusted local real estate partner." text="Sarraf Properties helps clients find the right residential and commercial property across Goregaon and Malad, Mumbai. Led by Rajan Sarraf, our approach is built around attentive service, local knowledge and dependable guidance."/><section className="values-section section-wrap"><div className="eyebrow dark-eyebrow"><span/> WHAT GUIDES US</div><h2>Good property decisions begin with <em>trust.</em></h2><div className="value-grid"><article><ShieldCheck/><h3>Our approach</h3><p>Understand each client’s needs and provide practical, personal guidance.</p></article><article><MapPin/><h3>Our mission</h3><p>Make real estate decisions clearer through responsive support and local insight.</p></article><article><Sparkles/><h3>Our vision</h3><p>Be the trusted neighbourhood partner people return to for their property needs.</p></article></div></section><PhotoStrip page={page}/></>}
-    {(page === "residential" || page === "commercial") && <><IntroSection page={page} image={page === "commercial" ? commercialImage : apartmentImage} title={page === "commercial" ? "Find space for your business." : "Find a home that feels right."} text={page === "commercial" ? "We can help you explore office spaces, retail shops, commercial buildings and flexible business spaces in the western suburbs." : "Explore luxury apartments, premium flats, residential projects and modern homes with guidance tailored to your preferences."}/><section className="opportunity-section section-wrap"><div className="eyebrow dark-eyebrow"><span/> PROPERTY POSSIBILITIES</div><h2>{page === "commercial" ? "A considered commercial search." : "A more personal home search."}</h2><p>Tell us your requirements and we’ll discuss suitable options and next steps. Availability and property details are shared directly on enquiry; no listings or prices are assumed here.</p><PhotoStrip titles page={page}/><button className="button-gold" type="button" onClick={() => openEnquiryForm(page === "commercial" ? "Commercial Property Consultation" : "Residential Property Consultation")}>Enquire about {page} properties <ArrowRight/></button></section><PropertyListings propertyType={page === "residential" ? "residential" : "commercial"}/></>}
-    {(page === "buy" || page === "sell" || page === "contact") && <><IntroSection page={page} image={page === "sell" ? towerImage : apartmentImage} title={page === "buy" ? "A clear path to your next home." : page === "sell" ? "Thoughtful support for your sale." : "Reach Rajan Sarraf directly."} text={page === "buy" ? "We start by understanding your budget, preferred areas, property type and timing. Together, we can define a search, arrange conversations and help you consider your options." : page === "sell" ? "We listen to your goals, discuss your property and preferred timing, then help coordinate the conversations and next steps involved in your sale." : "Call, email or send a WhatsApp enquiry. Sarraf Properties serves Goregaon and Malad, Mumbai."}/><section className="process-section section-wrap"><div className="eyebrow dark-eyebrow"><span/> {page === "sell" ? "YOUR SELLING JOURNEY" : "YOUR PROPERTY JOURNEY"}</div><h2>{page === "sell" ? "How we support sellers." : "How we support buyers."}</h2><div className="steps-grid">{(page === "sell" ? ["Share your property goals", "Discuss a considered plan", "Connect and coordinate enquiries", "Move forward with support"] : ["Share your requirements", "Explore relevant options", "Visit and consider properties", "Make an informed decision"]).map((step, i) => <article key={step}><span>0{i + 1}</span><h3>{step}</h3></article>)}</div></section><section className="form-section section-wrap"><div><div className="eyebrow dark-eyebrow"><span/> {page === "sell" ? "SELLER ENQUIRY" : page === "buy" ? "BUYER ENQUIRY" : "CONTACT FORM"}</div><h2>{page === "sell" ? "Let’s talk about your property." : page === "buy" ? "Tell us what you’re looking for." : "How can we help?"}</h2><p>Use the form to prepare an enquiry message. It opens WhatsApp for you to review and send.</p><ContactDetails/></div><EnquiryForm type={page}/></section></>}
-    {page === "services" && <section className="services-section section-wrap"><div className="service-page-intro"><div className="eyebrow dark-eyebrow"><span/> PERSONAL, LOCAL SUPPORT</div><h2>Support for every property decision.</h2><p>From a first conversation to a confident next step, our services are shaped around you.</p></div><div className="services-grid">{featureData.map(({ icon: Icon, image, title, text }, i) => <article className="service-item" key={title}><ManagedMediaImage page="services" section={`service-${i + 1}`} className="service-row-image" fallback={image} alt={`${title} service`} width={1200} height={800} loading="lazy"/><div className="service-top"><span className="service-icon"><Icon/></span><span className="service-index">0{i + 1}</span></div><h3>{title}</h3><p>{text}</p><div className="service-card-actions"><button className="service-enquiry" type="button" onClick={() => openEnquiryForm(title)} aria-label={`Enquire about ${title}`}>Enquire <ArrowRight/></button><a className="service-call-now" href={`tel:${siteSettings.phone}`} aria-label={`Call now about ${title}`}><Phone/> Call now</a></div></article>)}</div></section>}
-    {page === "locations" && <><section className="locations-detail section-wrap">{["Goregaon", "Malad"].map((area, i) => <article key={area} className="area-card"><ManagedMediaImage page="locations" section={i ? "malad" : "goregaon"} fallback={i ? commercialImage : towerImage} alt={`${area}, Mumbai property and neighbourhood`} loading="lazy"/><div><span className="area-index">0{i + 1} / MUMBAI</span><h2>{area}</h2><p>{area} brings together residential communities, everyday amenities and business destinations across Mumbai’s western suburbs. Share your preferred neighbourhood and we’ll help you explore residential or commercial property possibilities nearby.</p><div className="area-tags"><span>Residential opportunities</span><span>Commercial spaces</span><span>Local guidance</span></div><button type="button" className="underlined-link location-enquiry-button" onClick={() => openEnquiryForm("Real Estate Consultation", `Preferred area: ${area}`)}>Enquire in {area} <ArrowRight/></button></div></article>)}</section><section className="map-section section-wrap"><div><div className="eyebrow dark-eyebrow"><span/> VISIT OUR OFFICE</div><h2>Find us in Malad West.</h2><p>{siteSettings.address}</p><a className="underlined-link" href={`https://maps.google.com/?q=${encodeURIComponent(siteSettings.address)}`} target="_blank" rel="noreferrer">Open directions <ArrowRight/></a></div><iframe title="Sarraf Properties office location map" src={`https://www.google.com/maps?q=${encodeURIComponent(siteSettings.address)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade"/></section></>}
-    {page === "gallery" && <section className="gallery-page-section section-wrap"><div className="gallery-filter" role="group" aria-label="Filter gallery images">{["Residential", "Commercial"].map((category) => <button type="button" key={category} aria-pressed={filters.includes(category)} className={filters.includes(category) ? "selected" : ""} onClick={() => setFilters((selected) => selected.includes(category) ? selected.length > 1 ? selected.filter((item) => item !== category) : selected : [...selected, category])}>{category}</button>)}</div><div className="gallery-page-grid">{photos.filter((photo) => filters.includes(photo.category)).map((photo) => { const index = photos.indexOf(photo); return <button type="button" key={photo.title} className="gallery-card" onClick={() => setLightbox(index)}><ManagedMediaImage page="gallery" section={`gallery-${index + 1}`} fallback={photo.src} alt={photo.alt} loading="lazy"/><span>{photo.category}</span><strong>{photo.title}</strong></button>; })}</div><p className="gallery-note">Illustrative imagery only. Individual availability, features and pricing are shared on enquiry.</p>{lightbox !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label={photos[lightbox]!.title} onClick={() => setLightbox(null)}><button type="button" className="lightbox-close" aria-label="Close image" onClick={() => setLightbox(null)}><X/></button><button type="button" className="lightbox-prev" aria-label="Previous image" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + photos.length - 1) % photos.length); }}><ChevronLeft/></button><figure onClick={(e) => e.stopPropagation()}><img src={photos[lightbox]!.src} alt={photos[lightbox]!.alt}/><figcaption>{photos[lightbox]!.title} · {photos[lightbox]!.category}</figcaption></figure><button type="button" className="lightbox-next" aria-label="Next image" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % photos.length); }}><ChevronRight/></button></div>}</section>}
-    <CtaBand title={page === "about" ? "Let’s make your next move together." : "Your next move starts with a conversation."}/>
-  </main>;
+  const [filters, setFilters] = useState<string[]>(["Residential", "Commercial"]);
+  const [lightbox, setLightbox] = useState<number | null>(null);
+  return (
+    <main className={`content-page page-${page}`}>
+      <PageHero page={page} />
+      {page === "about" && (
+        <>
+          <IntroSection
+            page={page}
+            title="A trusted local real estate partner."
+            text="Sarraf Properties helps clients find the right residential and commercial property across Goregaon and Malad, Mumbai. Led by Rajan Sarraf, our approach is built around attentive service, local knowledge and dependable guidance."
+          />
+          <section className="values-section section-wrap">
+            <div className="eyebrow dark-eyebrow">
+              <span /> WHAT GUIDES US
+            </div>
+            <h2>
+              Good property decisions begin with <em>trust.</em>
+            </h2>
+            <div className="value-grid">
+              <article>
+                <ShieldCheck />
+                <h3>Our approach</h3>
+                <p>Understand each client’s needs and provide practical, personal guidance.</p>
+              </article>
+              <article>
+                <MapPin />
+                <h3>Our mission</h3>
+                <p>
+                  Make real estate decisions clearer through responsive support and local insight.
+                </p>
+              </article>
+              <article>
+                <Sparkles />
+                <h3>Our vision</h3>
+                <p>
+                  Be the trusted neighbourhood partner people return to for their property needs.
+                </p>
+              </article>
+            </div>
+          </section>
+          <PhotoStrip page={page} />
+        </>
+      )}
+      {(page === "residential" || page === "commercial") && (
+        <>
+          <IntroSection
+            page={page}
+            image={page === "commercial" ? commercialImage : apartmentImage}
+            title={
+              page === "commercial"
+                ? "Find space for your business."
+                : "Find a home that feels right."
+            }
+            text={
+              page === "commercial"
+                ? "We can help you explore office spaces, retail shops, commercial buildings and flexible business spaces in the western suburbs."
+                : "Explore luxury apartments, premium flats, residential projects and modern homes with guidance tailored to your preferences."
+            }
+          />
+          <section className="opportunity-section section-wrap">
+            <div className="eyebrow dark-eyebrow">
+              <span /> PROPERTY POSSIBILITIES
+            </div>
+            <h2>
+              {page === "commercial"
+                ? "A considered commercial search."
+                : "A more personal home search."}
+            </h2>
+            <p>
+              Tell us your requirements and we’ll discuss suitable options and next steps.
+              Availability and property details are shared directly on enquiry; no listings or
+              prices are assumed here.
+            </p>
+            <PhotoStrip titles page={page} />
+            <button
+              className="button-gold"
+              type="button"
+              onClick={() =>
+                openEnquiryForm(
+                  page === "commercial"
+                    ? "Commercial Property Consultation"
+                    : "Residential Property Consultation",
+                )
+              }
+            >
+              Enquire about {page} properties <ArrowRight />
+            </button>
+          </section>
+          <PropertyListings propertyType={page === "residential" ? "residential" : "commercial"} />
+        </>
+      )}
+      {(page === "buy" || page === "sell" || page === "contact") && (
+        <>
+          <IntroSection
+            page={page}
+            image={page === "sell" ? towerImage : apartmentImage}
+            title={
+              page === "buy"
+                ? "A clear path to your next home."
+                : page === "sell"
+                  ? "Thoughtful support for your sale."
+                  : "Reach Rajan Sarraf directly."
+            }
+            text={
+              page === "buy"
+                ? "We start by understanding your budget, preferred areas, property type and timing. Together, we can define a search, arrange conversations and help you consider your options."
+                : page === "sell"
+                  ? "We listen to your goals, discuss your property and preferred timing, then help coordinate the conversations and next steps involved in your sale."
+                  : "Call, email or send a WhatsApp enquiry. Sarraf Properties serves Goregaon and Malad, Mumbai."
+            }
+          />
+          <section className="process-section section-wrap">
+            <div className="eyebrow dark-eyebrow">
+              <span /> {page === "sell" ? "YOUR SELLING JOURNEY" : "YOUR PROPERTY JOURNEY"}
+            </div>
+            <h2>{page === "sell" ? "How we support sellers." : "How we support buyers."}</h2>
+            <div className="steps-grid">
+              {(page === "sell"
+                ? [
+                    "Share your property goals",
+                    "Discuss a considered plan",
+                    "Connect and coordinate enquiries",
+                    "Move forward with support",
+                  ]
+                : [
+                    "Share your requirements",
+                    "Explore relevant options",
+                    "Visit and consider properties",
+                    "Make an informed decision",
+                  ]
+              ).map((step, i) => (
+                <article key={step}>
+                  <span>0{i + 1}</span>
+                  <h3>{step}</h3>
+                </article>
+              ))}
+            </div>
+          </section>
+          <section className="form-section section-wrap">
+            <div>
+              <div className="eyebrow dark-eyebrow">
+                <span />{" "}
+                {page === "sell"
+                  ? "SELLER ENQUIRY"
+                  : page === "buy"
+                    ? "BUYER ENQUIRY"
+                    : "CONTACT FORM"}
+              </div>
+              <h2>
+                {page === "sell"
+                  ? "Let’s talk about your property."
+                  : page === "buy"
+                    ? "Tell us what you’re looking for."
+                    : "How can we help?"}
+              </h2>
+              <p>
+                Use the form to prepare an enquiry message. It opens WhatsApp for you to review and
+                send.
+              </p>
+              <ContactDetails />
+            </div>
+            <EnquiryForm type={page} />
+          </section>
+        </>
+      )}
+      {page === "services" && (
+        <section className="services-section section-wrap">
+          <div className="service-page-intro">
+            <div className="eyebrow dark-eyebrow">
+              <span /> PERSONAL, LOCAL SUPPORT
+            </div>
+            <h2>Support for every property decision.</h2>
+            <p>
+              From a first conversation to a confident next step, our services are shaped around
+              you.
+            </p>
+          </div>
+          <div className="services-grid">
+            {featureData.map(({ icon: Icon, image, title, text }, i) => (
+              <article className="service-item" key={title}>
+                <ManagedMediaImage
+                  page="services"
+                  section={`service-${i + 1}`}
+                  className="service-row-image"
+                  fallback={image}
+                  alt={`${title} service`}
+                  width={1200}
+                  height={800}
+                  loading="lazy"
+                />
+                <div className="service-top">
+                  <span className="service-icon">
+                    <Icon />
+                  </span>
+                  <span className="service-index">0{i + 1}</span>
+                </div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+                <div className="service-card-actions">
+                  <button
+                    className="service-enquiry"
+                    type="button"
+                    onClick={() => openEnquiryForm(title)}
+                    aria-label={`Enquire about ${title}`}
+                  >
+                    Enquire <ArrowRight />
+                  </button>
+                  <a
+                    className="service-call-now"
+                    href={`tel:${siteSettings.phone}`}
+                    aria-label={`Call now about ${title}`}
+                  >
+                    <Phone /> Call now
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+      {page === "locations" && (
+        <>
+          <section className="locations-detail section-wrap">
+            {["Goregaon", "Malad"].map((area, i) => (
+              <article key={area} className="area-card">
+                <ManagedMediaImage
+                  page="locations"
+                  section={i ? "malad" : "goregaon"}
+                  fallback={i ? commercialImage : towerImage}
+                  alt={`${area}, Mumbai property and neighbourhood`}
+                  loading="lazy"
+                />
+                <div>
+                  <span className="area-index">0{i + 1} / MUMBAI</span>
+                  <h2>{area}</h2>
+                  <p>
+                    {area} brings together residential communities, everyday amenities and business
+                    destinations across Mumbai’s western suburbs. Share your preferred neighbourhood
+                    and we’ll help you explore residential or commercial property possibilities
+                    nearby.
+                  </p>
+                  <div className="area-tags">
+                    <span>Residential opportunities</span>
+                    <span>Commercial spaces</span>
+                    <span>Local guidance</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="underlined-link location-enquiry-button"
+                    onClick={() =>
+                      openEnquiryForm("Real Estate Consultation", `Preferred area: ${area}`)
+                    }
+                  >
+                    Enquire in {area} <ArrowRight />
+                  </button>
+                </div>
+              </article>
+            ))}
+          </section>
+          <section className="map-section section-wrap">
+            <div>
+              <div className="eyebrow dark-eyebrow">
+                <span /> VISIT OUR OFFICE
+              </div>
+              <h2>Find us in Malad West.</h2>
+              <p>{siteSettings.address}</p>
+              <a
+                className="underlined-link"
+                href={`https://maps.google.com/?q=${encodeURIComponent(siteSettings.address)}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open directions <ArrowRight />
+              </a>
+            </div>
+            <iframe
+              title="Sarraf Properties office location map"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(siteSettings.address)}&output=embed`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </section>
+        </>
+      )}
+      {page === "gallery" && (
+        <section className="gallery-page-section section-wrap">
+          <div className="gallery-filter" role="group" aria-label="Filter gallery images">
+            {["Residential", "Commercial"].map((category) => (
+              <button
+                type="button"
+                key={category}
+                aria-pressed={filters.includes(category)}
+                className={filters.includes(category) ? "selected" : ""}
+                onClick={() =>
+                  setFilters((selected) =>
+                    selected.includes(category)
+                      ? selected.length > 1
+                        ? selected.filter((item) => item !== category)
+                        : selected
+                      : [...selected, category],
+                  )
+                }
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+          <div className="gallery-page-grid">
+            {photos
+              .filter((photo) => filters.includes(photo.category))
+              .map((photo) => {
+                const index = photos.indexOf(photo);
+                return (
+                  <button
+                    type="button"
+                    key={photo.title}
+                    className="gallery-card"
+                    onClick={() => setLightbox(index)}
+                  >
+                    <ManagedMediaImage
+                      page="gallery"
+                      section={`gallery-${index + 1}`}
+                      fallback={photo.src}
+                      alt={photo.alt}
+                      loading="lazy"
+                    />
+                    <span>{photo.category}</span>
+                    <strong>{photo.title}</strong>
+                  </button>
+                );
+              })}
+          </div>
+          <p className="gallery-note">
+            Illustrative imagery only. Individual availability, features and pricing are shared on
+            enquiry.
+          </p>
+          {lightbox !== null && (
+            <div
+              className="lightbox"
+              role="dialog"
+              aria-modal="true"
+              aria-label={photos[lightbox]!.title}
+              onClick={() => setLightbox(null)}
+            >
+              <button
+                type="button"
+                className="lightbox-close"
+                aria-label="Close image"
+                onClick={() => setLightbox(null)}
+              >
+                <X />
+              </button>
+              <button
+                type="button"
+                className="lightbox-prev"
+                aria-label="Previous image"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightbox((lightbox + photos.length - 1) % photos.length);
+                }}
+              >
+                <ChevronLeft />
+              </button>
+              <figure onClick={(e) => e.stopPropagation()}>
+                <img src={photos[lightbox]!.src} alt={photos[lightbox]!.alt} />
+                <figcaption>
+                  {photos[lightbox]!.title} · {photos[lightbox]!.category}
+                </figcaption>
+              </figure>
+              <button
+                type="button"
+                className="lightbox-next"
+                aria-label="Next image"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightbox((lightbox + 1) % photos.length);
+                }}
+              >
+                <ChevronRight />
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+      <CtaBand
+        title={
+          page === "about"
+            ? "Let’s make your next move together."
+            : "Your next move starts with a conversation."
+        }
+      />
+    </main>
+  );
 }
-function ContactDetails() { const settings = usePublishedSiteSettings(); return <div className="contact-details"><a href={`tel:${settings.phone}`}><Phone/>{settings.phone}</a><a href={whatsappUrl(undefined, settings.whatsapp)} target="_blank" rel="noreferrer"><MessageCircle/>WhatsApp Rajan Sarraf</a><a href={`mailto:${settings.email}`}>✉ {settings.email}</a><a href="https://www.propsteps.com" target="_blank" rel="noreferrer">www.Propsteps.com</a><p><MapPin/>{settings.address}</p></div>; }
+function ContactDetails() {
+  const settings = usePublishedSiteSettings();
+  return (
+    <div className="contact-details">
+      <a href={`tel:${settings.phone}`}>
+        <Phone />
+        {settings.phone}
+      </a>
+      <a href={whatsappUrl(undefined, settings.whatsapp)} target="_blank" rel="noreferrer">
+        <MessageCircle />
+        WhatsApp Rajan Sarraf
+      </a>
+      <a href={`mailto:${settings.email}`}>✉ {settings.email}</a>
+      <a href="https://www.propsteps.com" target="_blank" rel="noreferrer">
+        www.Propsteps.com
+      </a>
+      <p>
+        <MapPin />
+        {settings.address}
+      </p>
+    </div>
+  );
+}
