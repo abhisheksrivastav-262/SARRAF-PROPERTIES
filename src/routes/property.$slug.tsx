@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Bath, BedDouble, MapPin, MessageCircle, Ruler } 
 import { getSupabase } from "@/lib/supabase";
 import { openEnquiryForm } from "@/components/site/SiteLayout";
 import { signedMediaUrl } from "@/lib/cms";
+import { propertyConfiguration } from "@/lib/property-format";
 
 export const Route = createFileRoute("/property/$slug")({
   head: () => ({
@@ -182,7 +183,7 @@ function PropertyDetailsPage() {
               {property.bedrooms !== null && (
                 <span>
                   <BedDouble size={17} />
-                  {property.bedrooms} bedrooms
+                  {propertyConfiguration(property.property_type, property.bedrooms)}
                 </span>
               )}
               {property.bathrooms !== null && (

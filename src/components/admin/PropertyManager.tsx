@@ -14,6 +14,7 @@ import { getSupabase, mediaBucket, maxImageMb, maxVideoMb } from "@/lib/supabase
 import type { MediaAsset } from "@/lib/supabase";
 import { Link } from "@tanstack/react-router";
 import { signedMediaUrl } from "@/lib/cms";
+import { propertyConfiguration } from "@/lib/property-format";
 
 type PropertyImage = {
   id: string;
@@ -678,7 +679,29 @@ export function PropertyManager() {
             {input("City", "city")}
             {input("Price", "price", "number")}
             {input("Currency", "currency")}
-            {input("Bedrooms", "bedrooms", "number")}
+            {form.property_type === "residential" ? (
+              <label className="property-admin-field">
+                Property configuration
+                <select
+                  aria-label="Property configuration"
+                  value={
+                    form.bedrooms && Number(form.bedrooms) >= 11 ? "11" : form.bedrooms
+                  }
+                  onChange={(event) => setField("bedrooms", event.target.value)}
+                >
+                  <option value="">Select configuration</option>
+                  <option value="0">Studio / 1 RK</option>
+                  {Array.from({ length: 10 }, (_, index) => index + 1).map((count) => (
+                    <option value={String(count)} key={count}>
+                      {count} BHK
+                    </option>
+                  ))}
+                  <option value="11">11+ BHK</option>
+                </select>
+              </label>
+            ) : (
+              input("Rooms", "bedrooms", "number")
+            )}
             {input("Bathrooms", "bathrooms", "number")}
             {input("Area", "area_sqft", "number")}
             {input("Area unit (e.g. sq ft, sq m)", "area_unit")}
@@ -887,7 +910,10 @@ export function PropertyManager() {
                   {item.featured && <span className="property-admin-featured-label">Featured</span>}
                   <h3>{item.title}</h3>
                   <p>
-                    {item.property_type} · {item.location}, {item.city}
+                    {item.property_type}
+                    {item.bedrooms !== null &&
+                      ` · ${propertyConfiguration(item.property_type, item.bedrooms)}`}
+                    {` · ${item.location}, ${item.city}`}
                     {item.price !== null
                       ? ` · ${item.currency} ${Number(item.price).toLocaleString("en-IN")}`
                       : ""}

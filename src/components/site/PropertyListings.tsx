@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, BedDouble, Bath, MapPin, Ruler } from "lucide-react";
 import { getSupabase } from "@/lib/supabase";
 import { signedMediaUrl } from "@/lib/cms";
+import { propertyConfiguration } from "@/lib/property-format";
 
 type PropertyCardData = {
   id: string;
@@ -147,7 +148,7 @@ export function PropertyListings({
                   {property.bedrooms !== null && (
                     <span>
                       <BedDouble size={14} />
-                      {property.bedrooms} beds
+                      {propertyConfiguration(property.property_type, property.bedrooms)}
                     </span>
                   )}
                   {property.bathrooms !== null && (
