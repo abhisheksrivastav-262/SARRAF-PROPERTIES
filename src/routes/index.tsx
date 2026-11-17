@@ -35,6 +35,7 @@ import { ManagedMediaImage } from "@/components/site/ManagedMedia";
 import { PropertyListings } from "@/components/site/PropertyListings";
 import { CmsPageView } from "@/components/site/CmsPageView";
 import { usePublishedSiteSettings } from "@/lib/cms";
+import { isValidPhoneNumber } from "@/lib/contact";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,15 +87,21 @@ function HomePage() {
 function LegacyHomePage() {
   const siteSettings = usePublishedSiteSettings();
   const [submitted, setSubmitted] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const name = String(form.get("name") ?? "");
-    const phone = String(form.get("phone") ?? "");
+    const name = String(form.get("name") ?? "").trim();
+    const phone = String(form.get("phone") ?? "").trim();
     const email = String(form.get("email") ?? "");
     const message = String(form.get("message") ?? "");
     const service = String(form.get("service") ?? "General property enquiry");
+    if (!isValidPhoneNumber(phone)) {
+      setPhoneError("Enter a valid phone number with 8–15 digits.");
+      return;
+    }
+    setPhoneError("");
     const body = [`Hello Sarraf Properties, I’m ${name}.`, `Mobile: ${phone}`, ...(email ? [`Email: ${email}`] : []), `Service: ${service}`, ...(message ? [`Additional message: ${message}`] : [])].join("\n");
     window.open(whatsappUrl(body), "_blank", "noopener,noreferrer");
     setSubmitted(true);
@@ -208,7 +215,7 @@ function LegacyHomePage() {
               <div className="form-heading"><span>PERSONAL PROPERTY GUIDANCE</span><h3>Make an enquiry</h3><p>Share your details and continue in WhatsApp.</p></div>
               {submitted ? <div className="form-success" role="status"><span><Check /></span><h3>Your enquiry is ready in WhatsApp.</h3><p>Complete sending your prefilled message in WhatsApp to reach Rajan Sarraf.</p><Button variant="outline" onClick={() => setSubmitted(false)}>Send another enquiry</Button></div> : <form onSubmit={handleSubmit}>
                 <label htmlFor="name">Your name</label><Input id="name" name="name" placeholder="Name" autoComplete="name" minLength={2} required />
-                <div className="form-row"><div><label htmlFor="phone">Mobile number</label><Input id="phone" name="phone" type="tel" placeholder="Mobile number" autoComplete="tel" pattern="[+0-9() -]{8,18}" minLength={8} required /></div><div><label htmlFor="email">Email (optional)</label><Input id="email" name="email" type="email" placeholder="Email address" autoComplete="email" /></div></div>
+                <div className="form-row"><div><label htmlFor="phone">Mobile number</label><Input id="phone" name="phone" type="tel" inputMode="tel" maxLength={24} placeholder="Mobile number" autoComplete="tel-national" required />{phoneError && <small className="global-enquiry-error" role="alert">{phoneError}</small>}</div><div><label htmlFor="email">Email (optional)</label><Input id="email" name="email" type="email" placeholder="Email address" autoComplete="email" /></div></div>
                 <label htmlFor="service">Service you’re interested in</label><select id="service" name="service" defaultValue="" required><option value="" disabled>Select a service</option>{enquiryServices.map((service) => <option key={service} value={service}>{service}</option>)}</select>
                 <label htmlFor="message">Additional message (optional)</label><Textarea id="message" name="message" placeholder="Share your requirements…" rows={3} />
                 <Button className="button-gold form-submit" type="submit">Continue on WhatsApp <MessageCircle /></Button>
@@ -250,7 +257,6 @@ function LegacyHomePage() {
             <a href="mailto:Sarrafproperties2011@gmail.com"><span className="contact-icon"><Mail /></span><span><small>EMAIL</small><strong>Sarrafproperties2011@gmail.com</strong></span><ArrowRight /></a>
           </div>
           <div className="address-block"><MapPin /><p><strong>Visit our office</strong><br />Shop No.4, Patidar Society,<br />Opp. Ezone Mall, Malad (W),<br />Mumbai - 400064</p></div>
-          <a className="website-link" href="https://www.propsteps.com" target="_blank" rel="noreferrer">www.Propsteps.com <ArrowRight /></a>
         </div>
       </section>
 

@@ -892,6 +892,9 @@ function AdminDashboard() {
                         <div className="media-admin-fields">
                           <label>
                             Title
+                            <small className="media-admin-field-help">
+                              A short name to find this image or video in Admin.
+                            </small>
                             <input
                               value={asset.title || ""}
                               onChange={(e) =>
@@ -906,6 +909,9 @@ function AdminDashboard() {
                           </label>
                           <label>
                             Description
+                            <small className="media-admin-field-help">
+                              Internal notes about what this media shows.
+                            </small>
                             <textarea
                               value={asset.description || ""}
                               onChange={(e) =>
@@ -922,6 +928,10 @@ function AdminDashboard() {
                           </label>
                           <label>
                             Alt text
+                            <small className="media-admin-field-help">
+                              Accessible image description; property photos use it, and page
+                              editors can set placement-specific alt text.
+                            </small>
                             <input
                               value={asset.alt_text || ""}
                               onChange={(e) =>
@@ -938,6 +948,9 @@ function AdminDashboard() {
                           </label>
                           <label>
                             Caption
+                            <small className="media-admin-field-help">
+                              Editorial reference; visible page captions are set in the page editor.
+                            </small>
                             <textarea
                               value={asset.caption || ""}
                               onChange={(e) =>

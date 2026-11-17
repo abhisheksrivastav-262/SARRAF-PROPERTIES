@@ -4,6 +4,7 @@ import { ArrowRight, Check, Menu, MessageCircle, Phone, Send, X } from "lucide-r
 import logoMark from "@/assets/sarraf-logo-mark.webp";
 import { getSupabase } from "@/lib/supabase";
 import { signedMediaUrl, usePublishedSiteSettings } from "@/lib/cms";
+import { isValidPhoneNumber } from "@/lib/contact";
 
 export const siteNavigation = [
   ["Home", "/"],
@@ -46,6 +47,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
   const [enquirySent, setEnquirySent] = useState(false);
   const [servicePrefill, setServicePrefill] = useState("");
   const [messagePrefill, setMessagePrefill] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const siteSettings = usePublishedSiteSettings();
   const [publishedLogo, setPublishedLogo] = useState("");
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -80,6 +82,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           : "",
       );
       setMessagePrefill(detail?.message ?? "");
+      setPhoneError("");
       setEnquirySent(false);
       setEnquiryOpen(true);
     };
@@ -109,6 +112,11 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
     const email = String(data.get("email") ?? "").trim();
     const service = String(data.get("service") ?? "");
     const message = String(data.get("message") ?? "").trim();
+    if (!isValidPhoneNumber(phone)) {
+      setPhoneError("Enter a valid phone number with 8–15 digits.");
+      return;
+    }
+    setPhoneError("");
     const lines = [
       "Hello Sarraf Properties, I would like to make an enquiry.",
       `Name: ${name}`,
@@ -324,13 +332,18 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
                     id="global-enquiry-phone"
                     name="phone"
                     type="tel"
-                    autoComplete="tel"
+                    autoComplete="tel-national"
                     inputMode="tel"
-                    pattern="[+0-9() -]{8,18}"
-                    title="Enter a valid phone number"
+                    maxLength={24}
+                    aria-describedby={phoneError ? "global-enquiry-phone-error" : undefined}
                     required
                     placeholder="Mobile number"
                   />
+                  {phoneError && (
+                    <p id="global-enquiry-phone-error" className="global-enquiry-error" role="alert">
+                      {phoneError}
+                    </p>
+                  )}
                   <label htmlFor="global-enquiry-email">
                     Email address <span>(optional)</span>
                   </label>

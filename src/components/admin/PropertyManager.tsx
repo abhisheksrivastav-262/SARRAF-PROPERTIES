@@ -14,7 +14,16 @@ import { getSupabase, mediaBucket, maxImageMb, maxVideoMb } from "@/lib/supabase
 import type { MediaAsset } from "@/lib/supabase";
 import { Link } from "@tanstack/react-router";
 import { signedMediaUrl } from "@/lib/cms";
-import { propertyConfiguration } from "@/lib/property-format";
+import {
+  BUILDING_AMENITIES,
+  FURNISHING_ITEMS,
+  formatPropertyPrice,
+  formatPropertyPriceInWords,
+  parsePropertyAmenities,
+  propertyConfiguration,
+  serializePropertyAmenities,
+  type FurnishingStatus,
+} from "@/lib/property-format";
 
 type PropertyImage = {
   id: string;
@@ -70,6 +79,8 @@ type PropertyForm = {
   area_sqft: string;
   area_unit: string;
   amenities: string;
+  furnishingStatus: FurnishingStatus;
+  furnishingItems: string[];
   status: "draft" | "published";
   featured: boolean;
 };
@@ -90,6 +101,8 @@ const emptyForm: PropertyForm = {
   area_sqft: "",
   area_unit: "sq ft",
   amenities: "",
+  furnishingStatus: "",
+  furnishingItems: [],
   status: "draft",
   featured: false,
 };
@@ -198,6 +211,7 @@ export function PropertyManager() {
     setNotice("");
   }
   function startEdit(item: PropertyRow) {
+    const features = parsePropertyAmenities(item.amenities);
     setEditorOpen(true);
     setEditing(item);
     setFiles([]);
@@ -220,7 +234,9 @@ export function PropertyManager() {
       bathrooms: item.bathrooms === null ? "" : String(item.bathrooms),
       area_sqft: item.area_sqft === null ? "" : String(item.area_sqft),
       area_unit: item.area_unit || "sq ft",
-      amenities: (item.amenities || []).join("\n"),
+      amenities: features.amenities.join("\n"),
+      furnishingStatus: features.furnishingStatus,
+      furnishingItems: features.furnishingItems,
       status: item.status,
       featured: item.featured,
     });
@@ -234,6 +250,25 @@ export function PropertyManager() {
   }
   function setField<K extends keyof PropertyForm>(key: K, value: PropertyForm[K]) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function toggleBuildingAmenity(amenity: string, checked: boolean) {
+    const selected = new Set(
+      form.amenities
+        .split("\n")
+        .map((value) => value.trim())
+        .filter(Boolean),
+    );
+    if (checked) selected.add(amenity);
+    else selected.delete(amenity);
+    setField("amenities", [...selected].join("\n"));
+  }
+
+  function toggleFurnishingItem(item: string, checked: boolean) {
+    const selected = new Set(form.furnishingItems);
+    if (checked) selected.add(item);
+    else selected.delete(item);
+    setField("furnishingItems", [...selected]);
   }
 
   async function uploadImages(property: PropertyRow, selectedFiles: File[]) {
@@ -375,10 +410,11 @@ export function PropertyManager() {
       bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
       area_sqft: form.area_sqft ? Number(form.area_sqft) : null,
       area_unit: form.area_unit.trim() || "sq ft",
-      amenities: form.amenities
-        .split("\n")
-        .map((item) => item.trim())
-        .filter(Boolean),
+      amenities: serializePropertyAmenities(
+        form.amenities.split("\n"),
+        form.furnishingStatus,
+        form.furnishingItems,
+      ),
       status: form.status,
       featured: form.featured,
       published_at:
@@ -677,7 +713,25 @@ export function PropertyManager() {
             </label>
             {input("Location *", "location", "text", true)}
             {input("City", "city")}
-            {input("Price", "price", "number")}
+            <label className="property-admin-field">
+              Price
+              <span className="property-admin-price-input">
+                <span>{form.currency.toUpperCase() === "INR" ? "₹" : form.currency}</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  value={form.price}
+                  onChange={(event) => setField("price", event.target.value)}
+                  placeholder="Enter amount"
+                />
+              </span>
+              {form.price && Number(form.price) > 0 && (
+                <small className="property-admin-price-words">
+                  {formatPropertyPriceInWords(Number(form.price), form.currency)}
+                </small>
+              )}
+            </label>
             {input("Currency", "currency")}
             {form.property_type === "residential" ? (
               <label className="property-admin-field">
@@ -703,18 +757,72 @@ export function PropertyManager() {
               input("Rooms", "bedrooms", "number")
             )}
             {input("Bathrooms", "bathrooms", "number")}
-            {input("Area", "area_sqft", "number")}
+            {input("Carpet area", "area_sqft", "number")}
             {input("Area unit (e.g. sq ft, sq m)", "area_unit")}
             {input("Address", "address")}
+            <fieldset className="property-admin-option-group property-admin-description">
+              <legend>Building amenities</legend>
+              <p>Select all facilities available in the building.</p>
+              <div className="property-admin-option-grid">
+                {BUILDING_AMENITIES.map((amenity) => (
+                  <label key={amenity}>
+                    <input
+                      type="checkbox"
+                      checked={form.amenities
+                        .split("\n")
+                        .map((value) => value.trim())
+                        .includes(amenity)}
+                      onChange={(event) => toggleBuildingAmenity(amenity, event.target.checked)}
+                    />
+                    {amenity}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <label className="property-admin-field property-admin-description">
-              Amenities (one per line)
+              Other building amenities (one per line)
               <textarea
                 rows={3}
                 value={form.amenities}
                 onChange={(e) => setField("amenities", e.target.value)}
-                placeholder="Parking\nGym\nSecurity"
+                placeholder="Add any other building facilities"
               />
             </label>
+            <label className="property-admin-field">
+              Furnishing status
+              <select
+                value={form.furnishingStatus}
+                onChange={(event) => {
+                  const status = event.target.value as FurnishingStatus;
+                  setField("furnishingStatus", status);
+                  if (status === "Unfurnished" || status === "") setField("furnishingItems", []);
+                }}
+              >
+                <option value="">Not specified</option>
+                <option value="Furnished">Furnished</option>
+                <option value="Semi-furnished">Semi-furnished</option>
+                <option value="Unfurnished">Unfurnished</option>
+              </select>
+            </label>
+            <fieldset
+              className="property-admin-option-group property-admin-description"
+              disabled={!form.furnishingStatus || form.furnishingStatus === "Unfurnished"}
+            >
+              <legend>Furnishing included</legend>
+              <p>Choose the furniture and appliances included with the property.</p>
+              <div className="property-admin-option-grid">
+                {FURNISHING_ITEMS.map((item) => (
+                  <label key={item}>
+                    <input
+                      type="checkbox"
+                      checked={form.furnishingItems.includes(item)}
+                      onChange={(event) => toggleFurnishingItem(item, event.target.checked)}
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <label className="property-admin-field property-admin-description">
               Description
               <textarea
@@ -915,7 +1023,7 @@ export function PropertyManager() {
                       ` · ${propertyConfiguration(item.property_type, item.bedrooms)}`}
                     {` · ${item.location}, ${item.city}`}
                     {item.price !== null
-                      ? ` · ${item.currency} ${Number(item.price).toLocaleString("en-IN")}`
+                      ? ` · ${formatPropertyPrice(item.price, item.currency)}`
                       : ""}
                   </p>
                   <small>

@@ -99,13 +99,48 @@ export function AdminOverview({
   }, [db, refreshKey]);
 
   const stats = [
-    { label: "Total properties", value: counts.properties, icon: Building2 },
-    { label: "Published properties", value: counts.publishedProperties, icon: ArrowUpRight },
-    { label: "Draft properties", value: counts.draftProperties, icon: LayoutDashboard },
-    { label: "Managed media", value: counts.media, icon: Images },
-    { label: "Images", value: counts.images, icon: Images },
-    { label: "Videos", value: counts.videos, icon: Film },
-    { label: "CMS pages", value: counts.pages, icon: LayoutDashboard },
+    {
+      label: "Total properties",
+      description: "All saved listings, including drafts.",
+      value: counts.properties,
+      icon: Building2,
+    },
+    {
+      label: "Published properties",
+      description: "Listings visible on the public website.",
+      value: counts.publishedProperties,
+      icon: ArrowUpRight,
+    },
+    {
+      label: "Draft properties",
+      description: "Saved in Admin; visitors cannot see them yet.",
+      value: counts.draftProperties,
+      icon: LayoutDashboard,
+    },
+    {
+      label: "Managed media",
+      description: "Images and videos in the Media Library.",
+      value: counts.media,
+      icon: Images,
+    },
+    {
+      label: "Images",
+      description: "Image files in the Media Library.",
+      value: counts.images,
+      icon: Images,
+    },
+    {
+      label: "Videos",
+      description: "Video files in the Media Library.",
+      value: counts.videos,
+      icon: Film,
+    },
+    {
+      label: "CMS pages",
+      description: "Editable website pages; publish each page separately.",
+      value: counts.pages,
+      icon: LayoutDashboard,
+    },
   ];
 
   return (
@@ -123,6 +158,7 @@ export function AdminOverview({
             </span>
             <span className="admin-overview-stat-label">{label}</span>
             <strong>{loading ? "—" : value.toLocaleString("en-IN")}</strong>
+            <small>{description}</small>
           </article>
         ))}
       </section>

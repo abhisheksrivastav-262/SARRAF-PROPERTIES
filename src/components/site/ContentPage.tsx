@@ -30,6 +30,7 @@ import { ManagedMediaImage } from "./ManagedMedia";
 import { PropertyListings } from "./PropertyListings";
 import { CmsPageView } from "./CmsPageView";
 import { usePublishedSiteSettings } from "@/lib/cms";
+import { isValidPhoneNumber } from "@/lib/contact";
 
 const contact = {
   name: "Rajan Sarraf",
@@ -193,7 +194,7 @@ function EnquiryForm({ type = "property" }: { type?: string }) {
     const service = String(data.get("service") ?? "");
     if (
       name.length < 2 ||
-      !/^[+\d()\s-]{8,18}$/.test(phone) ||
+      !isValidPhoneNumber(phone) ||
       (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) ||
       !enquiryServices.includes(service as (typeof enquiryServices)[number])
     ) {
@@ -247,8 +248,9 @@ function EnquiryForm({ type = "property" }: { type?: string }) {
             name="phone"
             type="tel"
             autoComplete="tel"
+            inputMode="tel"
+            maxLength={24}
             required
-            pattern="[+0-9() -]{8,18}"
             placeholder="Mobile number"
           />
         </div>
@@ -890,9 +892,6 @@ function ContactDetails() {
         WhatsApp Rajan Sarraf
       </a>
       <a href={`mailto:${settings.email}`}>✉ {settings.email}</a>
-      <a href="https://www.propsteps.com" target="_blank" rel="noreferrer">
-        www.Propsteps.com
-      </a>
       <p>
         <MapPin />
         {settings.address}

@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, BedDouble, Bath, MapPin, Ruler } from "lucide-react";
 import { getSupabase } from "@/lib/supabase";
 import { signedMediaUrl } from "@/lib/cms";
-import { propertyConfiguration } from "@/lib/property-format";
+import { formatPropertyPrice, propertyConfiguration } from "@/lib/property-format";
 
 type PropertyCardData = {
   id: string;
@@ -160,14 +160,14 @@ export function PropertyListings({
                   {property.area_sqft !== null && (
                     <span>
                       <Ruler size={14} />
-                      {property.area_sqft} {property.area_unit || "sq ft"}
+                      Carpet area · {property.area_sqft} {property.area_unit || "sq ft"}
                     </span>
                   )}
                 </div>
                 <div className="property-listing-footer">
                   {property.price !== null && (
                     <strong>
-                      {property.currency} {Number(property.price).toLocaleString("en-IN")}
+                      {formatPropertyPrice(property.price, property.currency)}
                     </strong>
                   )}
                   <Link

@@ -4,7 +4,12 @@ import { ArrowLeft, ArrowRight, Bath, BedDouble, MapPin, MessageCircle, Ruler } 
 import { getSupabase } from "@/lib/supabase";
 import { openEnquiryForm } from "@/components/site/SiteLayout";
 import { signedMediaUrl } from "@/lib/cms";
-import { propertyConfiguration } from "@/lib/property-format";
+import {
+  formatPropertyPrice,
+  formatPropertyPriceInWords,
+  parsePropertyAmenities,
+  propertyConfiguration,
+} from "@/lib/property-format";
 
 export const Route = createFileRoute("/property/$slug")({
   head: () => ({
@@ -137,6 +142,7 @@ function PropertyDetailsPage() {
   const videos = property.property_videos
     .map((row) => row.media_assets)
     .filter((video): video is NonNullable<typeof video> => !!video?.public_url);
+  const features = parsePropertyAmenities(property.amenities);
   return (
     <main className="property-detail-page">
       <div className="property-detail-wrap">
@@ -176,9 +182,14 @@ function PropertyDetailsPage() {
             {property.address && <p>{property.address}</p>}
             <div className="property-detail-price">
               {property.price !== null
-                ? `${property.currency} ${Number(property.price).toLocaleString("en-IN")}`
+                ? formatPropertyPrice(property.price, property.currency)
                 : "Price on enquiry"}
             </div>
+            {property.price !== null && (
+              <p className="property-price-in-words">
+                {formatPropertyPriceInWords(property.price, property.currency)}
+              </p>
+            )}
             <div className="property-specs property-detail-specs">
               {property.bedrooms !== null && (
                 <span>
@@ -195,7 +206,7 @@ function PropertyDetailsPage() {
               {property.area_sqft !== null && (
                 <span>
                   <Ruler size={17} />
-                  {property.area_sqft} {property.area_unit || "sq ft"}
+                  Carpet area · {property.area_sqft} {property.area_unit || "sq ft"}
                 </span>
               )}
             </div>
@@ -204,14 +215,27 @@ function PropertyDetailsPage() {
               {property.description ||
                 "Contact Sarraf Properties for more information about this property."}
             </p>
-            {property.amenities.length > 0 && (
+            {features.amenities.length > 0 && (
               <section className="property-amenities">
-                <h2>Amenities</h2>
+                <h2>Building amenities</h2>
                 <ul>
-                  {property.amenities.map((item) => (
+                  {features.amenities.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
+              </section>
+            )}
+            {(features.furnishingStatus || features.furnishingItems.length > 0) && (
+              <section className="property-amenities property-furnishing">
+                <h2>Furnishing</h2>
+                <p>{features.furnishingStatus}</p>
+                {features.furnishingItems.length > 0 && (
+                  <ul>
+                    {features.furnishingItems.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
               </section>
             )}
             <button
