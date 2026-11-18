@@ -151,7 +151,7 @@ export function AdminOverview({
         </div>
       )}
       <section className="admin-overview-stats" aria-label="Website totals">
-        {stats.map(({ label, value, icon: Icon }) => (
+        {stats.map(({ label, description, value, icon: Icon }) => (
           <article className="admin-overview-stat" key={label}>
             <span className="admin-overview-stat-icon">
               <Icon size={18} />
